@@ -1,4 +1,6 @@
-package com.equifax;
+package com.equifax.thread;
+
+import com.equifax.domain.Client;
 
 /**
  * Thread de notification client.
@@ -14,7 +16,7 @@ public class NotificationThread extends Thread {
 
     @Override
     public void run() {
-        client.getMessages().add(message);
+        client.addMessage(message);
         System.out.println("Notification: " + message);
     }
 }

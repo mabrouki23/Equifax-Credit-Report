@@ -1,4 +1,4 @@
-package com.equifax;
+package com.equifax.domain;
 
 import java.time.LocalDate;
 

@@ -1,5 +1,8 @@
-package com.equifax;
+package com.equifax.domain;
 
+/**
+ * Représente un événement financier lié au client.
+ */
 public class Event {
     private String type;
     private double amount;
@@ -10,8 +13,10 @@ public class Event {
     }
 
     public String getType() { return type; }
+    public double getAmount() { return amount; }
 
     @Override
     public String toString() {
         return type + " : " + amount;
     }
+}

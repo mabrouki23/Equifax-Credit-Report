@@ -1,4 +1,7 @@
-package com.equifax;
+package com.equifax.thread;
+
+import com.equifax.domain.Client;
+import com.equifax.service.ClientService;
 
 /**
  * Thread de recalcul du credit score.
@@ -14,6 +17,10 @@ public class CreditScoreThread extends Thread {
 
     @Override
     public void run() {
-        service.updateCreditScore(client);
+        try {
+            service.updateCreditScore(client);
+        } catch (Exception e) {
+            System.err.println("Erreur lors du recalcul du score: " + e.getMessage());
+        }
     }
 }
