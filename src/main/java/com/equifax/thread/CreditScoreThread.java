@@ -4,17 +4,20 @@ import com.equifax.domain.Client;
 import com.equifax.service.ClientService;
 
 /**
- * Thread de recalcul du credit score.
+ * Thread qui recalcul le creditScore d'un client en arrière-plan.
  */
 public class CreditScoreThread extends Thread {
-    private Client client;
-    private ClientService service;
+    private final Client client;
+    private final ClientService service;
 
     public CreditScoreThread(Client client, ClientService service) {
         this.client = client;
         this.service = service;
     }
 
+    /**
+     * Exécute la mise à jour du score de crédit via le service.
+     */
     @Override
     public void run() {
         try {

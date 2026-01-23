@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CreditScoreThreadTest {
 
     @Test
-    public void testRunCallsUpdate() {
+    public void testRunCallsUpdate() throws InterruptedException {
         AtomicBoolean called = new AtomicBoolean(false);
 
         ClientService service = new ClientService() {
@@ -20,14 +20,13 @@ public class CreditScoreThreadTest {
             public void updateCreditScore(com.equifax.domain.Client client) {
                 called.set(true);
             }
-
-            // keep other methods default by delegating to super if needed
         };
 
         Client client = new Client(1, "T", "User");
 
         CreditScoreThread t = new CreditScoreThread(client, service);
-        t.run(); // call directly to avoid thread scheduling issues
+        t.start();
+        t.join(); // attendre la fin
 
         assertTrue(called.get(), "updateCreditScore should have been called");
     }

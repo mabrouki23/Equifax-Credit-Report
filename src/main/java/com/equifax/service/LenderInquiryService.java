@@ -8,11 +8,20 @@ import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service pour la gestion des demandes de consultation de crédit (inquiries).
+ */
 public class LenderInquiryService {
+    /**
+     * Ajoute une demande au client.
+     */
     public void addInquiry(Client client, LenderInquiry inquiry) {
         client.addInquiry(inquiry);
     }
 
+    /**
+     * Récupère les demandes récentes (en nombre de jours).
+     */
     public List<LenderInquiry> getRecentInquiries(Client client, int days) {
         LocalDate now = LocalDate.now();
         return client.getInquiries().stream()
@@ -24,6 +33,9 @@ public class LenderInquiryService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Récupère toutes les demandes d'un client.
+     */
     public List<LenderInquiry> getAllInquiries(Client client) {
         return client.getInquiries();
     }

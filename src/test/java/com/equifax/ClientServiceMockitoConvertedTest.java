@@ -5,8 +5,6 @@ import com.equifax.domain.Client;
 import com.equifax.service.ClientService;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,8 +34,9 @@ public class ClientServiceMockitoConvertedTest {
         // give it some accounts/events/inquiries to influence score
         Account a = new Account(1, "Credit Card", 100.0, 1000.0);
         client.addAccount(a);
-        client.addEvent(new com.equifax.domain.Event("BAD_CHEQUE", 100));
-        client.addInquiry(new com.equifax.domain.LenderInquiry("LenderX"));
+        // use Event with id
+        client.addEvent(new com.equifax.domain.Event(1, "BAD_CHEQUE", 100));
+        client.addInquiry(new com.equifax.domain.LenderInquiry("LenderX", client, 5000));
 
         ClientService service = new ClientService();
         double before = client.getCreditScore();

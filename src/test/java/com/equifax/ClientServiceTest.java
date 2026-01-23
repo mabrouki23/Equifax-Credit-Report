@@ -26,11 +26,11 @@ public class ClientServiceTest {
         Client c = new Client(2, "Jane", "Smith");
         // add lots of negative events to push score down
         for (int i = 0; i < 10; i++) {
-            c.addEvent(new Event("BANKRUPTCY", 10000));
+            c.addEvent(new Event(i, "BANKRUPTCY", 10000));
         }
         // add many inquiries
         for (int i = 0; i < 20; i++) {
-            c.addInquiry(new LenderInquiry("Lender" + i));
+            c.addInquiry(new LenderInquiry("Lender" + i, c, 0));
         }
 
         ClientService service = new ClientService();

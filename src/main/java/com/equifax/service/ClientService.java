@@ -5,27 +5,49 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+/**
+ * Service pour la gestion des clients : recherche, totalisation des comptes,
+ * calcul du credit score et envoi de notifications.
+ */
 public class ClientService {
     private static final double BASE_SCORE = 600;
 
+    /**
+     * Recherche les clients dont le nom de famille correspond (insensible à la casse).
+     * Utilise une expression lambda pour filtrer la liste.
+     * @param clients liste de clients à rechercher
+     * @param lastName nom de famille recherché
+     * @return liste des clients trouvés
+     */
     public List<Client> searchClientByLastName(List<Client> clients, String lastName) {
         return clients.stream()
                 .filter(c -> c.getLastName() != null && c.getLastName().equalsIgnoreCase(lastName))
                 .toList();
     }
 
+    /**
+     * Calcule la somme des soldes de tous les comptes du client.
+     * @param client client
+     * @return total des soldes
+     */
     public double calculateTotalBalance(Client client) {
         return client.getAccounts().stream()
                 .mapToDouble(Account::getBalance)
                 .sum();
     }
 
+    /**
+     * Calcule la limite totale de crédit du client.
+     */
     public double calculateTotalLimit(Client client) {
         return client.getAccounts().stream()
                 .mapToDouble(Account::getLimit)
                 .sum();
     }
 
+    /**
+     * Calcule le ratio d'utilisation du crédit.
+     */
     public double calculateUtilizationRatio(Client client) {
         double totalLimit = calculateTotalLimit(client);
         if (totalLimit <= 0) return 0.0;
@@ -61,22 +83,27 @@ public class ClientService {
 
     private double calculateAccountBonus(Client client) {
         int count = client.getAccounts().size();
-        double bonus = count * 15; // 15 points par compte
+        double bonus = count * 15; // 15 points per account
         boolean hasCredit = client.getAccounts().stream()
-                .anyMatch(a -> a.toString().toLowerCase().contains("credit"));
+                .anyMatch(a -> a.getType().toLowerCase().contains("credit"));
         boolean hasSavings = client.getAccounts().stream()
-                .anyMatch(a -> a.toString().toLowerCase().contains("savings") || a.toString().toLowerCase().contains("chequing"));
-        if (hasCredit && hasSavings) bonus += 10; // diversité
-        if (count == 0) bonus -= 50; // pénalité si pas de compte
+                .anyMatch(a -> a.getType().toLowerCase().contains("savings") || a.getType().toLowerCase().contains("chequing"));
+        if (hasCredit && hasSavings) bonus += 10; // diversity
+        if (count == 0) bonus -= 50; // penalty if no account
         return bonus;
     }
 
+    /**
+     * Met à jour le creditScore du client selon comptes, événements et demandes.
+     * Le score final est lissé puis borné entre 300 et 900.
+     * @param client client à mettre à jour
+     */
     public void updateCreditScore(Client client) {
         double prev = client.getCreditScore();
         double score = BASE_SCORE;
 
-        double utilization = calculateUtilizationRatio(client); // 0..inf
-        double utilPenalty = utilization * 300; // 1.0 => -300
+        double utilization = calculateUtilizationRatio(client);
+        double utilPenalty = utilization * 300;
 
         double eventPenalty = calculateEventPenalty(client);
         double inquiryPenalty = calculateInquiryPenalty(client);
@@ -93,6 +120,11 @@ public class ClientService {
         client.setCreditScore(score);
     }
 
+    /**
+     * Envoie une notification au client (ajoute au champ messages).
+     * @param client client destinataire
+     * @param message contenu du message
+     */
     public void sendNotification(Client client, String message) {
         client.addMessage(message);
     }

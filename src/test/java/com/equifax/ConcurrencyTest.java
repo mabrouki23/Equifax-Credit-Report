@@ -57,6 +57,7 @@ public class ConcurrencyTest {
             CountDownLatch done = new CountDownLatch(threads);
 
             for (int i = 0; i < threads; i++) {
+                final int idx = i;
                 es.submit(() -> {
                     try {
                         start.await();
@@ -64,8 +65,10 @@ public class ConcurrencyTest {
                             accountService.deposit(account, 10);
                             accountService.withdraw(account, 5);
                         }
-                        // send notification in a separate thread but join to ensure delivery
-                        NotificationThread nt = new NotificationThread(client, "msg");
+                        // send notification in a separate thread but join to ensure delivery (French message)
+                        String eventType = "EVENEMENT_" + idx;
+                        String fullMsg = "Transaction terminée par le thread " + idx;
+                        NotificationThread nt = new NotificationThread(client, eventType, fullMsg);
                         nt.start();
                         try {
                             nt.join();
@@ -88,7 +91,13 @@ public class ConcurrencyTest {
         double expected = 1000.0 + threads * 500.0;
         assertEquals(expected, account.getBalance(), 1e-6);
 
-        // Check notifications count
+        // Check notifications count and content (French format)
         assertEquals(threads, client.getMessages().size());
+        client.getMessages().forEach(m -> {
+            assertTrue(m.contains("ID client=" + client.getId()));
+            assertTrue(m.contains("TypeEvenement=EVENEMENT_"));
+            assertTrue(m.contains("Message=Transaction terminée par le thread "));
+            assertTrue(m.contains("Nom=" + client.getFirstName()));
+        });
     }
 }
