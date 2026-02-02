@@ -4,26 +4,41 @@ import com.equifax.domain.Client;
 import com.equifax.service.ClientService;
 
 /**
- * Thread qui recalcul le creditScore d'un client en arrière-plan.
+ * Thread pour recalculer le score de crédit d'un client en parallèle.
+ * Cette classe permet d'exécuter le calcul du score sans bloquer le programme principal.
+ *
+ * @author Système Equifax
+ * @version 1.0
  */
 public class CreditScoreThread extends Thread {
-    private final Client client;
-    private final ClientService service;
+    private Client client;
+    private ClientService clientService;
 
-    public CreditScoreThread(Client client, ClientService service) {
+    /**
+     * Constructeur du thread de calcul de score
+     * @param client Le client dont le score doit être calculé
+     * @param clientService Le service client pour effectuer le calcul
+     */
+    public CreditScoreThread(Client client, ClientService clientService) {
         this.client = client;
-        this.service = service;
+        this.clientService = clientService;
     }
 
     /**
-     * Exécute la mise à jour du score de crédit via le service.
+     * Méthode exécutée lors du démarrage du thread.
+     * Effectue le recalcul du score de crédit du client.
      */
     @Override
     public void run() {
-        try {
-            service.updateCreditScore(client);
-        } catch (Exception e) {
-            System.err.println("Erreur lors du recalcul du score: " + e.getMessage());
-        }
+        System.out.println("Début du calcul du score de crédit pour le client: " +
+                client.getFirstName() + " " + client.getLastName());
+
+        clientService.updateCreditScore(client);
+
+        System.out.println("Calcul terminé. Nouveau score: " + client.getCreditScore());
     }
+
+    // Getters
+    public Client getClient() { return client; }
+    public ClientService getClientService() { return clientService; }
 }

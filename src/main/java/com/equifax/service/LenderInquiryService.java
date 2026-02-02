@@ -4,39 +4,53 @@ import com.equifax.domain.Client;
 import com.equifax.domain.LenderInquiry;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Service pour la gestion des demandes de consultation de crédit (inquiries).
+ * Service pour gérer les demandes de crédit
  */
 public class LenderInquiryService {
+
     /**
-     * Ajoute une demande au client.
+     * Ajoute une demande de crédit à un client
+     * @param client Le client
+     * @param inquiry La demande de crédit à ajouter
      */
     public void addInquiry(Client client, LenderInquiry inquiry) {
-        client.addInquiry(inquiry);
+        if (client != null && inquiry != null) {
+            client.addInquiry(inquiry);
+        }
     }
 
     /**
-     * Récupère les demandes récentes (en nombre de jours).
+     * Récupère les demandes de crédit récentes d'un client
+     * @param client Le client
+     * @param days Nombre de jours pour définir "récent"
+     * @return Liste des demandes récentes
      */
     public List<LenderInquiry> getRecentInquiries(Client client, int days) {
-        LocalDate now = LocalDate.now();
+        if (client == null || days < 0) {
+            return List.of();
+        }
+
+        LocalDate cutoffDate = LocalDate.now().minusDays(days);
+
         return client.getInquiries().stream()
-                .filter(i -> {
-                    Period p = Period.between(i.getDate(), now);
-                    int d = p.getDays() + p.getMonths()*30 + p.getYears()*365;
-                    return d <= days;
-                })
+                .filter(inquiry -> inquiry.getDate().isAfter(cutoffDate) ||
+                        inquiry.getDate().isEqual(cutoffDate))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Récupère toutes les demandes d'un client.
+     * Récupère toutes les demandes de crédit d'un client
+     * @param client Le client
+     * @return Liste de toutes les demandes
      */
     public List<LenderInquiry> getAllInquiries(Client client) {
+        if (client == null) {
+            return List.of();
+        }
         return client.getInquiries();
     }
 }

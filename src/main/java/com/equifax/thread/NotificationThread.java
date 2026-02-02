@@ -1,39 +1,44 @@
 package com.equifax.thread;
 
 import com.equifax.domain.Client;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
- * Thread de notification client.
- * Produit un message formaté et l'ajoute à la liste des messages du client.
- * Format : "Notification - ID client={id} | Nom={firstName} {lastName} | TypeEvenement={type} | Heure={yyyy-MM-dd HH:mm:ss} | Message={message}"
+ * Thread pour envoyer des notifications aux clients en parallèle.
+ * Cette classe permet d'envoyer des notifications sans bloquer le programme principal.
+ *
+ * @author Système Equifax
+ * @version 1.0
  */
 public class NotificationThread extends Thread {
-    private final Client client;
-    private final String message;
-    private final String eventType;
+    private Client client;
+    private String message;
 
+    /**
+     * Constructeur du thread de notification
+     * @param client Le client destinataire
+     * @param message Le message à envoyer
+     */
     public NotificationThread(Client client, String message) {
-        this(client, null, message);
-    }
-
-    public NotificationThread(Client client, String eventType, String message) {
         this.client = client;
         this.message = message;
-        this.eventType = eventType;
     }
 
     /**
-     * Construit et enregistre la notification pour le client.
+     * Méthode exécutée lors du démarrage du thread.
+     * Ajoute le message à la liste des messages du client et affiche la notification.
      */
     @Override
     public void run() {
-        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String evt = (eventType == null || eventType.isEmpty()) ? "GENERAL" : eventType;
-        String formatted = String.format("Notification - ID client=%d | Nom=%s %s | TypeEvenement=%s | Heure=%s | Message=%s",
-                client.getId(), client.getFirstName(), client.getLastName(), evt, time, message);
-        client.addMessage(formatted);
-        System.out.println(formatted);
+        client.getMessages().add(message);
+
+        System.out.println("===========================================");
+        System.out.println("NOTIFICATION pour " + client.getFirstName() +
+                " " + client.getLastName());
+        System.out.println("Message: " + message);
+        System.out.println("===========================================");
     }
+
+    // Getters
+    public Client getClient() { return client; }
+    public String getMessage() { return message; }
 }

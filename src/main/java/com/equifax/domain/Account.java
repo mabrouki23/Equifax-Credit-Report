@@ -1,70 +1,73 @@
 package com.equifax.domain;
 
 /**
- * Représente un compte financier appartenant à un client.
- * Fournit des opérations thread-safe de dépôt et de retrait.
+ * Représente un compte financier appartenant à un client
  */
-@SuppressWarnings("unused")
 public class Account {
-    private final int id;
-    private final String type;
-    private double balance;
-    private final double limit;
-    private Client client; // propriétaire du compte
+    public enum AccountType {
+        CHEQUING, SAVINGS, CREDIT_CARD, STORE_CARD, LINE_OF_CREDIT, LOAN
+    }
 
-    /**
-     * Construit un compte.
-     * @param id identifiant du compte
-     * @param type type de compte (chequing, savings, credit card, ...)
-     * @param balance solde initial
-     * @param limit limite de crédit
-     */
-    public Account(int id, String type, double balance, double limit) {
+    private String id;
+    private AccountType type;
+    private double balance;
+    private double limit;
+    private Client client;
+
+    public Account(String id, AccountType type, double balance, double limit, Client client) {
         this.id = id;
         this.type = type;
         this.balance = balance;
         this.limit = limit;
+        this.client = client;
     }
 
     /**
-     * Récupère le solde courant (thread-safe).
+     * Dépose un montant dans le compte
+     * @param amount Montant à déposer
+     * @return true si le dépôt est réussi
      */
-    public synchronized double getBalance() { return balance; }
-
-    /**
-     * Récupère la limite du compte.
-     */
-    public double getLimit() { return limit; }
-
-    public int getId() { return id; }
-    public String getType() { return type; }
-    public Client getClient() { return client; }
-    public void setClient(Client client) { this.client = client; }
-
-    /**
-     * Dépose un montant sur le compte (synchronisé).
-     * @return true si l'opération a réussi
-     */
-    public synchronized boolean deposit(double amount) {
-        if (amount <= 0) return false;
-        balance += amount;
-        return true;
+    public boolean deposit(double amount) {
+        if (amount > 0) {
+            this.balance += amount;
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Retire un montant du compte (synchronisé).
-     * @return true si le retrait a pu être effectué
+     * Retire un montant du compte
+     * @param amount Montant à retirer
+     * @return true si le retrait est réussi
      */
-    public synchronized boolean withdraw(double amount) {
-        if (amount <= 0) return false;
-        if (balance < amount) return false;
-        balance -= amount;
-        return true;
+    public boolean withdraw(double amount) {
+        if (amount > 0 && this.balance >= amount) {
+            this.balance -= amount;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String toString() {
-        String owner = (client != null) ? (client.getFirstName() + " " + client.getLastName()) : "no-owner";
-        return String.format("Account{id=%d, type=%s, balance=%.2f, limit=%.2f, owner=%s}", id, type, balance, limit, owner);
+        return "Account{" +
+                "id='" + id + '\'' +
+                ", type=" + type +
+                ", balance=" + balance +
+                ", limit=" + limit +
+                ", client=" + (client != null ? client.getId() : "null") +
+                '}';
     }
+
+    // Getters et Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public AccountType getType() { return type; }
+    public void setType(AccountType type) { this.type = type; }
+    public double getBalance() { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
+    public double getLimit() { return limit; }
+    public void setLimit(double limit) { this.limit = limit; }
+    public Client getClient() { return client; }
+    public void setClient(Client client) { this.client = client; }
 }
